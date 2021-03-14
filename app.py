@@ -23,7 +23,9 @@ async def get_client(ip_address):
     try:
         if await client.connect():
             return client
-    except ConnectionRefusedError:
+        else:
+            return None
+    except Exception:
         return None
 
 async def close_client(client):
@@ -92,22 +94,25 @@ async def get_health():
 
 @app.route('/sendCommandsToDevice', methods=['POST'])
 async def send_command():
-    async with open_client(HUB_IP) as hub_client:
-        try:
-            validate_command_request(request)
-        except Exception as e:
-            return { 'error': e }, 400
+    try:
+        validate_command_request(request)
+    except Exception as e:
+        return { 'error': e }, 400
 
-        device = None
-        try:
-            device = get_device_from_config(config, request.args.get('device'))
-        except Exception as e:
-            return { 'error': e }, 400
-        
-        commands = request.args.get('commands').split(',')
-        is_valid = all(command in device['actions'] for command in commands)
-        if not is_valid:
-            return { 'error': 'At least one of the provided commands is not valid' }, 400
+    device = None
+    try:
+        device = get_device_from_config(config, request.args.get('device'))
+    except Exception as e:
+        return { 'error': e }, 400
+    
+    commands = request.args.get('commands').split(',')
+    is_valid = all(command in device['actions'] for command in commands)
+    if not is_valid:
+        return { 'error': 'At least one of the provided commands is not valid' }, 400
+
+    async with open_client(HUB_IP) as hub_client: 
+        if hub_client is None:
+            return { 'error': f'Could not connect to client with IP: {HUB_IP}' }, 500
         
         result = await send_commands_to_device(hub_client, {
             'device_id': device['id'],

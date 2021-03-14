@@ -16,6 +16,7 @@ config = confuse.Configuration("App", __name__)
 config.set_file("config/config.yml")
 
 HUB_IP = config["hub_ip"].get()
+COMMAND_DELAY = config["command_delay"].get(int)
 
 async def get_client(ip_address):
     client = HarmonyAPI(ip_address=ip_address)
@@ -65,6 +66,22 @@ async def send_commands_to_device(client, args):
     else:
         return True
 
+def get_device_from_config(config, name):
+    device_list = list(filter(lambda x: x["name"] == name, config["devices"].get()))
+    device_list_length = len(device_list)
+    if device_list_length > 1:
+        raise KeyError(f"Muliple devices found with name: {name}")
+    if device_list_length == 0:
+        raise KeyError(f"No devices found with name: {name}")
+    return device_list[0]    
+    
+def validate_command_request(request):
+    if request.args.get("device") is None:
+        raise Exception("No device proviced")
+    if request.args.get("commands") is None:
+        raise Exception("No commands provided")
+    return True
+
 @app.route("/health")
 async def get_health():
     async with open_client(HUB_IP) as hub_client:
@@ -76,14 +93,25 @@ async def get_health():
 @app.route("/commands")
 async def send_command():
     async with open_client(HUB_IP) as hub_client:
-        commands = request.args.get("commands")
-        if commands is None:
-            return { "error": "No commands provided" }, 400
+        try:
+            validate_command_request(request)
+        except Exception as e:
+            return { "error": e }, 400
+
+        device = None
+        try:
+            device = get_device_from_config(config, request.args.get("device"))
+        except Exception as e:
+            return { "error": e }, 400
         
-        commands_list = commands.split(",")
+        commands = request.args.get("commands").split(",")
+        is_valid = all(command in device["actions"] for command in commands)
+        if not is_valid:
+            return { "error": "At least one of the provided commands is not valid" }, 400
+        
         result = await send_commands_to_device(hub_client, {
             "device_id": request.args.get("deviceid"),
-            "commands": commands_list,
+            "commands": commands,
             "delay": 1
         })
 

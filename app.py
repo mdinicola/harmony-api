@@ -90,7 +90,7 @@ async def get_health():
         }
         return output
 
-@app.route("/commands")
+@app.route("/sendCommandsToDevice", methods=['POST'])
 async def send_command():
     async with open_client(HUB_IP) as hub_client:
         try:

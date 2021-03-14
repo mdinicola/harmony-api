@@ -1,0 +1,20 @@
+---
+hub_ip: 0.0.0.0
+
+devices:
+  - name: device1
+    id: 12345678
+    actions:
+      - Action1
+      - Action2
+      - Action3
+      - Mode
+      - Oscillate
+      - Speed
+      - Style
+      - Up Down Oscillate
+  - name: device2
+    id: 12345679
+    actions:
+      - Action1
+      - Action2

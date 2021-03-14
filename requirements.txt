@@ -8,6 +8,7 @@ blinker==1.4
 cffi==1.14.5
 chardet==4.0.0
 click==7.1.2
+confuse==1.4.0
 h11==0.12.0
 h2==4.0.0
 hpack==4.0.0
@@ -23,6 +24,7 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycares==3.1.1
 pycparser==2.20
+PyYAML==5.4.1
 Quart==0.14.1
 slixmpp==1.7.0
 toml==0.10.2

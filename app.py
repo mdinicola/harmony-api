@@ -2,6 +2,7 @@ import os
 import json
 import asyncio
 import aioharmony.exceptions
+import confuse
 
 from contextlib import asynccontextmanager
 from quart import Quart
@@ -10,9 +11,11 @@ from aioharmony.harmonyapi import HarmonyAPI, SendCommandDevice
 from aioharmony.responsehandler import Handler
 from aioharmony.const import ClientCallbackType, WEBSOCKETS, XMPP
 
-HUB_IP = os.environ["HARMONY_HUB_IP"]
-
 app = Quart(__name__)
+config = confuse.Configuration("App", __name__)
+config.set_file("config/config.yml")
+
+HUB_IP = config["hub_ip"].get()
 
 async def get_client(ip_address):
     client = HarmonyAPI(ip_address=ip_address)
@@ -64,7 +67,7 @@ async def send_commands_to_device(client, args):
 
 @app.route("/health")
 async def get_health():
-    async with open_client(HUB_ID) as hub_client:
+    async with open_client(HUB_IP) as hub_client:
         output = {
             "healthy": hub_client is not None
         }
@@ -72,7 +75,7 @@ async def get_health():
 
 @app.route("/commands")
 async def send_command():
-    async with open_client(HUB_ID) as hub_client:
+    async with open_client(HUB_IP) as hub_client:
         commands = request.args.get("commands")
         if commands is None:
             return { "error": "No commands provided" }, 400

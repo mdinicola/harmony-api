@@ -110,7 +110,7 @@ async def send_command():
             return { "error": "At least one of the provided commands is not valid" }, 400
         
         result = await send_commands_to_device(hub_client, {
-            "device_id": request.args.get("deviceid"),
+            "device_id": device["id"],
             "commands": commands,
             "delay": 1
         })

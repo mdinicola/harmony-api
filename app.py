@@ -1,7 +1,9 @@
 import confuse
+import distutils
 
 from functools import wraps
 from quart import Quart, request
+from distutils import util
 from helpers import open_client, get_device_from_config
 from helpers import validate_command_request, send_commands_to_device
 
@@ -50,18 +52,30 @@ async def send_command():
     if not is_valid:
         return { 'error': 'At least one of the provided commands is not valid' }, 400
 
-    async with open_client(HUB_IP) as hub_client: 
-        if hub_client is None:
-            return { 'error': f'Could not connect to client with IP: {HUB_IP}' }, 500
+    try:
+        is_test_run = request.args.get('testRun') and distutils.util.strtobool(request.args.get('testRun'))
+    except ValueError as e:
+        return { 'error': str(e) }, 400
 
-        result = await send_commands_to_device(hub_client, {
+    if request.args.get('testRun') and distutils.util.strtobool(request.args.get('testRun')):
+        result = {
             'device_id': device['id'],
             'commands': commands,
             'delay': 1
-        })
+        }
+    else:
+        async with open_client(HUB_IP) as hub_client: 
+            if hub_client is None:
+                return { 'error': f'Could not connect to client with IP: {HUB_IP}' }, 500
 
-        output = { 'result': result }
-        return output
+            result = await send_commands_to_device(hub_client, {
+                'device_id': device['id'],
+                'commands': commands,
+                'delay': 1
+            })
+
+    output = { 'result': result }
+    return output
 
 if __name__ == '__main__':
     app.run()

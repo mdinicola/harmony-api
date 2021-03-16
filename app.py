@@ -39,13 +39,13 @@ async def send_command():
     try:
         validate_command_request(request)
     except Exception as e:
-        return { 'error': e }, 400
+        return { 'error': str(e) }, 400
 
     device = None
     try:
         device = get_device_from_config(config, request.args.get('device'))
     except Exception as e:
-        return { 'error': e }, 400
+        return { 'error': str(e) }, 404
     
     commands = request.args.get('commands').split(',')
     is_valid = all(command in device['actions'] for command in commands)

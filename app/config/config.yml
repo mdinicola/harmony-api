@@ -4,9 +4,9 @@ hub_ip: 192.168.50.7
 command_delay: 1
 
 devices:
-  - name: fan
+  - device_name: fan
     id: "54266113"
-    actions:
+    commands:
       - PowerToggle
       - Timer
       - Ionize
@@ -15,9 +15,9 @@ devices:
       - Speed
       - Style
       - Up Down Oscillate
-  - name: soundbar
+  - device_name: soundbar
     id: "50987337"
-    actions:
+    commands:
       - "PowerToggle"
       - "Mute"
       - "VolumeDown"

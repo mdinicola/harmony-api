@@ -55,18 +55,11 @@ async def send_commands_to_device(client, args):
     else:
         return True
 
-def get_device_from_config(config, name):
-    device_list = list(filter(lambda x: x['name'] == name, config['devices'].get()))
+def get_device_from_config(config, device_name):
+    device_list = list(filter(lambda x: x['device_name'] == device_name, config['devices'].get()))
     device_list_length = len(device_list)
     if device_list_length > 1:
-        raise KeyError(f'Muliple devices found with name: {name}')
+        raise KeyError(f'Muliple devices found with name: {device_name}')
     if device_list_length == 0:
-        raise KeyError(f'No devices found with name: {name}')
-    return device_list[0]    
-    
-def validate_command_request(request):
-    if request.query_params.get('device') is None:
-        raise Exception('No device proviced')
-    if request.query_params.get('commands') is None:
-        raise Exception('No commands provided')
-    return True
+        raise KeyError(f'No devices found with name: {device_name}')
+    return device_list[0]

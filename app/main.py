@@ -2,9 +2,10 @@ import confuse
 
 from functools import wraps
 from fastapi import FastAPI, Request, HTTPException
-from distutils import util
+
+from models.command import Command
 from helpers import open_client, get_device_from_config
-from helpers import validate_command_request, send_commands_to_device
+from helpers import send_commands_to_device
 
 app = FastAPI()
 config = confuse.Configuration('App', __name__)
@@ -34,30 +35,20 @@ async def get_health(request: Request):
 
 @app.post('/devices/{device_name}')
 @require_apikey
-async def send_command(request: Request, device_name: str):
-    try:
-        validate_command_request(request)
-    except Exception as e:
-        raise HTTPException(status_code = 400, detail=f'Command is invalid: {str(e)}')
-
+async def send_command_to_device(request: Request, device_name: str, command: Command, testRun: bool = False):
     device = None
     try:
         device = get_device_from_config(config, device_name)
     except Exception:
         raise HTTPException(status_code = 404, detail = f'Device with name {device_name} could not be found')
 
-    commands = request.query_params.get('commands').split(',')
-    is_valid = all(command in device['actions'] for command in commands)
+    commands = command.commands
+    is_valid = len(commands) != 0
+    is_valid = is_valid and all(command in device['commands'] for command in commands)
     if not is_valid:
         raise HTTPException(status_code = 400, detail = 'At least one of the provided commands is invalid')
 
-    is_test_run = False
-    try:
-        is_test_run = request.query_params.get('testRun') and util.strtobool(request.query_params.get('testRun'))
-    except ValueError as e:
-        return { 'error': str(e) }, 400
-
-    if is_test_run:
+    if testRun:
         result = {
             'device_id': device['id'],
             'commands': commands,

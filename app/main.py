@@ -1,5 +1,4 @@
 import confuse
-import distutils
 
 from functools import wraps
 from fastapi import FastAPI, Request
@@ -53,11 +52,11 @@ async def send_command(request: Request):
         return { 'error': 'At least one of the provided commands is not valid' }, 400
 
     try:
-        is_test_run = request.query_params.get('testRun') and distutils.util.strtobool(request.query_params.get('testRun'))
+        is_test_run = request.query_params.get('testRun') and util.strtobool(request.query_params.get('testRun'))
     except ValueError as e:
         return { 'error': str(e) }, 400
 
-    if request.query_params.get('testRun') and distutils.util.strtobool(request.query_params.get('testRun')):
+    if request.query_params.get('testRun') and util.strtobool(request.query_params.get('testRun')):
         result = {
             'device_id': device['id'],
             'commands': commands,

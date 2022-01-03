@@ -1,5 +1,4 @@
 import asyncio
-import aioharmony.exceptions
 
 from contextlib import asynccontextmanager
 from aioharmony.harmonyapi import HarmonyAPI, SendCommandDevice

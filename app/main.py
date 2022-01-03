@@ -32,9 +32,9 @@ async def get_health(request: Request):
         }
         return output
 
-@app.post('/sendCommandsToDevice')
+@app.post('/devices/{device_name}')
 @require_apikey
-async def send_command(request: Request):
+async def send_command(request: Request, device_name: str):
     try:
         validate_command_request(request)
     except Exception as e:
@@ -42,21 +42,22 @@ async def send_command(request: Request):
 
     device = None
     try:
-        device = get_device_from_config(config, request.query_params.get('device'))
+        device = get_device_from_config(config, device_name)
     except Exception as e:
         return { 'error': str(e) }, 404
-    
+
     commands = request.query_params.get('commands').split(',')
     is_valid = all(command in device['actions'] for command in commands)
     if not is_valid:
-        return { 'error': 'At least one of the provided commands is not valid' }, 400
+        return { 'error': 'At least one of the provided commands is invalid' }, 400
 
+    is_test_run = False
     try:
         is_test_run = request.query_params.get('testRun') and util.strtobool(request.query_params.get('testRun'))
     except ValueError as e:
         return { 'error': str(e) }, 400
 
-    if request.query_params.get('testRun') and util.strtobool(request.query_params.get('testRun')):
+    if is_test_run:
         result = {
             'device_id': device['id'],
             'commands': commands,
@@ -75,6 +76,3 @@ async def send_command(request: Request):
 
     output = { 'result': result }
     return output
-
-# if __name__ == '__main__':
-#     app.run()

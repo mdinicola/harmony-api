@@ -1,7 +1,7 @@
 import confuse
 
 from functools import wraps
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from distutils import util
 from helpers import open_client, get_device_from_config
 from helpers import validate_command_request, send_commands_to_device
@@ -20,7 +20,7 @@ def require_apikey(view_function):
         if request.query_params.get('apikey') and request.query_params.get('apikey') == API_KEY:
             return await view_function(request, *args, **kwargs)
         else:
-            return { 'error': 'API Key not provided or not valid' }, 401
+            raise HTTPException(status_code = 400, detail = "API key was either not provided or is invalid")
     return decorated_function
 
 @app.get('/health')
@@ -38,18 +38,18 @@ async def send_command(request: Request, device_name: str):
     try:
         validate_command_request(request)
     except Exception as e:
-        return { 'error': str(e) }, 400
+        raise HTTPException(status_code = 400, detail=f'Command is invalid: {str(e)}')
 
     device = None
     try:
         device = get_device_from_config(config, device_name)
-    except Exception as e:
-        return { 'error': str(e) }, 404
+    except Exception:
+        raise HTTPException(status_code = 404, detail = f'Device with name {device_name} could not be found')
 
     commands = request.query_params.get('commands').split(',')
     is_valid = all(command in device['actions'] for command in commands)
     if not is_valid:
-        return { 'error': 'At least one of the provided commands is invalid' }, 400
+        raise HTTPException(status_code = 400, detail = 'At least one of the provided commands is invalid')
 
     is_test_run = False
     try:
@@ -66,7 +66,7 @@ async def send_command(request: Request, device_name: str):
     else:
         async with open_client(HUB_IP) as hub_client: 
             if hub_client is None:
-                return { 'error': f'Could not connect to client with IP: {HUB_IP}' }, 500
+                raise HTTPException(status_code = 500, detail = f'Could not connect to client with IP: {HUB_IP}')
 
             result = await send_commands_to_device(hub_client, {
                 'device_id': device['id'],

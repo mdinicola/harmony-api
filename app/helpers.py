@@ -66,8 +66,8 @@ def get_device_from_config(config, name):
     return device_list[0]    
     
 def validate_command_request(request):
-    if request.args.get('device') is None:
+    if request.query_params.get('device') is None:
         raise Exception('No device proviced')
-    if request.args.get('commands') is None:
+    if request.query_params.get('commands') is None:
         raise Exception('No commands provided')
     return True

@@ -1,0 +1,38 @@
+---
+api_key: e7b7daf20c3d4ca5bce201a506984178
+hub_ip: 192.168.50.7
+command_delay: 1
+
+devices:
+  - device_name: fan
+    id: "54266113"
+    commands:
+      - PowerToggle
+      - Timer
+      - Ionize
+      - Mode
+      - Oscillate
+      - Speed
+      - Style
+      - Up Down Oscillate
+  - device_name: soundbar
+    id: "50987337"
+    commands:
+      - "PowerToggle"
+      - "Mute"
+      - "VolumeDown"
+      - "VolumeUp"
+      - "Play"
+      - "Pause"
+      - "PreviousTrack"
+      - "NextTrack"
+      - "AutoPowerOff"
+      - "AutoPowerOn"
+      - "BassBlast"
+      - "DRCOff"
+      - "DRCOn"
+      - "Function"
+      - "InputOptical"
+      - "Standard"
+      - "WooferLevelDown"
+      - "WooferLevelUp"

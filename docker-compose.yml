@@ -1,0 +1,14 @@
+---
+version: "3.8"
+services:
+  harmony-api:
+    build: .
+    container_name: harmony-api
+    image: mdinicola/harmony-api:latest
+    environment:
+      - HARMONYAPIDIR=/app/config
+    volumes:
+      - /C/Projects/harmony-api/app/config:/app/config
+    ports:
+      - 8000:80
+    restart: unless-stopped

@@ -8,7 +8,7 @@ from helpers import open_client, get_device_from_config
 from helpers import send_commands_to_device
 
 app = FastAPI()
-config = confuse.Configuration('App', __name__)
+config = confuse.Configuration('HarmonyApi')
 config.set_file('config/config.yml')
 
 API_KEY = config['api_key'].get()

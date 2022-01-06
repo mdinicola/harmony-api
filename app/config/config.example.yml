@@ -1,6 +1,7 @@
 ---
-api_key: a1234567890
-hub_ip: 0.0.0.0
+# Generate API key with command: python -c "import secrets; print(secrets.token_hex(16))"
+api_key: f027a50634aa163b6463ed1b82834b3c
+hub_ip: 192.168.0.123
 
 devices:
   - name: device1

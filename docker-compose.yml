@@ -1,14 +1,38 @@
 ---
 version: "3.8"
+networks:
+  traefik_proxy:
+    name: traefik_proxy
+    external: true
 services:
   harmony-api:
     build: .
-    container_name: harmony-api
     image: mdinicola/harmony-api:latest
+    container_name: harmony-api
+    labels:
+      # Enable routing with traefik
+      - traefik.enable=true
+      - traefik.http.services.hubcontrol.loadbalancer.server.port=80
+      # Basic Auth - Used if apikey is correct in query string and user agent matches NZB360
+      # NZB360 uses generic okhttp user agent :(
+      # Add HUBCONTROL_API_KEY to .env file
+      - traefik.http.routers.hubcontrol-basic-auth.entrypoints=https
+      - "traefik.http.routers.hubcontrol-basic-auth.rule=Host(`hubcontrol.mdinicola.ca`) && Query(`apikey`, `$HUBCONTROL_API_KEY`)"
+      - traefik.http.routers.hubcontrol-basic-auth.service=harmony-api
+      - traefik.http.routers.hubcontrol-basic-auth.priority=100
+      - traefik.http.routers.hubcontrol-basic-auth.middlewares=chain-basic-auth@file
+      # OAuth
+      - traefik.http.routers.hubcontrol-oauth.entrypoints=https
+      - traefik.http.routers.hubcontrol-oauth.rule=Host(`hubcontrol.mdinicola.ca`)
+      - traefik.http.routers.hubcontrol-oauth.service=hubcontrol
+      - traefik.http.routers.hubcontrol-oauth.priority=99
+      - traefik.http.routers.hubcontrol-oauth.middlewares=chain-oauth@file
     environment:
       - HARMONYAPIDIR=/app/config
     volumes:
-      - /C/Projects/harmony-api/app/config:/app/config
+      - /volume1/docker/harmony-api/config:/app/config
     ports:
       - 8000:80
+    networks:
+      - traefik_proxy
     restart: unless-stopped

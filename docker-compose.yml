@@ -13,9 +13,7 @@ services:
       # Enable routing with traefik
       - traefik.enable=true
       - traefik.http.services.hubcontrol.loadbalancer.server.port=80
-      # Basic Auth - Used if apikey is correct in query string and user agent matches NZB360
-      # NZB360 uses generic okhttp user agent :(
-      # Add HUBCONTROL_API_KEY to .env file
+      # Basic Auth
       - traefik.http.routers.hubcontrol-basic-auth.entrypoints=https
       - "traefik.http.routers.hubcontrol-basic-auth.rule=Host(`hubcontrol.mdinicola.ca`) && Query(`apikey`, `$HUBCONTROL_API_KEY`)"
       - traefik.http.routers.hubcontrol-basic-auth.service=hubcontrol

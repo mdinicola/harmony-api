@@ -18,15 +18,9 @@ services:
       # Add HUBCONTROL_API_KEY to .env file
       - traefik.http.routers.hubcontrol-basic-auth.entrypoints=https
       - "traefik.http.routers.hubcontrol-basic-auth.rule=Host(`hubcontrol.mdinicola.ca`) && Query(`apikey`, `$HUBCONTROL_API_KEY`)"
-      - traefik.http.routers.hubcontrol-basic-auth.service=harmony-api
+      - traefik.http.routers.hubcontrol-basic-auth.service=hubcontrol
       - traefik.http.routers.hubcontrol-basic-auth.priority=100
       - traefik.http.routers.hubcontrol-basic-auth.middlewares=chain-basic-auth@file
-      # OAuth
-      - traefik.http.routers.hubcontrol-oauth.entrypoints=https
-      - traefik.http.routers.hubcontrol-oauth.rule=Host(`hubcontrol.mdinicola.ca`)
-      - traefik.http.routers.hubcontrol-oauth.service=hubcontrol
-      - traefik.http.routers.hubcontrol-oauth.priority=99
-      - traefik.http.routers.hubcontrol-oauth.middlewares=chain-oauth@file
     environment:
       - HARMONYAPIDIR=/app/config
     volumes:

@@ -1,8 +1,8 @@
 ---
 version: "3.8"
 networks:
-  traefik_proxy:
-    name: traefik_proxy
+  media_default:
+    name: media_default
     external: true
 services:
   harmony-api:
@@ -26,5 +26,5 @@ services:
     ports:
       - 8000:80
     networks:
-      - traefik_proxy
+      - media_default
     restart: unless-stopped
